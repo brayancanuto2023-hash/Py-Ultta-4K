@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Py ULTRA 4K | Soluções Digitais & Automação 24/7</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter & Orbitron -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Tailwind Custom Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            base: '#09090b',
+                            card: '#121215',
+                            border: '#27272a'
+                        },
+                        ultra: {
+                            gold: '#fbbf24',
+                            amber: '#f59e0b',
+                            yellow: '#facc15'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        tech: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #08080a;
+            color: #f4f4f5;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: auto;
+        }
+
+        .glass-card {
+            background: rgba(18, 18, 22, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(251, 191, 36, 0.18);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(251, 191, 36, 0.05);
+        }
+
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(251, 191, 36, 0.5);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.9), 0 0 30px rgba(251, 191, 36, 0.2);
+        }
+
+        .gold-glow-text {
+            text-shadow: 0 0 12px rgba(250, 204, 21, 0.5);
+        }
+
+        .gold-gradient-btn {
+            background: linear-gradient(135deg, #fef08a 0%, #facc15 50%, #d97706 100%);
+            color: #000000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .gold-gradient-btn:hover {
+            box-shadow: 0 0 25px rgba(250, 204, 21, 0.6);
+            transform: scale(1.02);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between selection:bg-amber-400 selection:text-black">
+
+    <!-- 3D Canvas Background Container -->
+    <div id="canvas-container"></div>
+
+    <!-- MAIN INTERFACE CONTENT LAYER -->
+    <div class="relative z-10 max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full flex-grow flex flex-col items-center">
+
+        <!-- STATUS BAR & REAL-TIME DIGITAL CLOCK -->
+        <div class="w-full glass-card rounded-full px-5 py-2.5 mb-8 flex flex-wrap justify-between items-center text-xs sm:text-sm border-amber-500/30">
+            <div class="flex items-center space-x-2">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <span class="font-medium text-emerald-400 tracking-wide">SISTEMA OPERACIONAL 24/7</span>
+            </div>
+            
+            <div class="flex items-center space-x-2 text-zinc-300 font-tech tracking-wider">
+                <i class="fa-regular fa-clock text-amber-400"></i>
+                <span id="liveClock">00:00:00 - 00/00/0000</span>
+            </div>
+        </div>
+
+        <!-- HEADER & BRANDING LOGO SECTION -->
+        <header class="text-center mb-8 w-full">
+            <div class="inline-flex items-center justify-center p-4 mb-4 rounded-2xl bg-black/80 border border-amber-500/40 shadow-2xl shadow-amber-500/10">
+                <i class="fa-solid fa-bolt text-3xl sm:text-4xl text-amber-400 animate-pulse mr-3"></i>
+                <h1 class="font-tech text-4xl sm:text-6xl font-black tracking-wider text-white">
+                    4K
+                </h1>
+                <i class="fa-solid fa-bolt text-3xl sm:text-4xl text-amber-400 animate-pulse ml-3"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-tech uppercase gold-glow-text">
+                Py ULTRA 4K
+            </h2>
+            <p class="text-amber-400/90 text-sm font-semibold tracking-widest uppercase mt-1">
+                Alavancagem Digital, Automação & Alta Performance
+            </p>
+
+            <!-- SOCIAL MEDIA DIRECT BUTTONS -->
+            <div class="flex justify-center items-center space-x-4 mt-6">
+                <a href="https://www.instagram.com/melhoriacontinua_rj/" target="_blank" rel="noopener noreferrer" 
+                   class="glass-card px-5 py-2.5 rounded-full flex items-center space-x-2 text-sm font-medium hover:border-amber-400 hover:text-amber-400 transition-all group">
+                    <i class="fa-brands fa-instagram text-pink-500 text-lg group-hover:scale-110 transition-transform"></i>
+                    <span>@melhoriacontinua_rj</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-zinc-500"></i>
+                </a>
+
+                <a href="https://wa.me/5522997302763" target="_blank" rel="noopener noreferrer"
+                   class="glass-card px-5 py-2.5 rounded-full flex items-center space-x-2 text-sm font-medium hover:border-emerald-500 hover:text-emerald-400 transition-all group">
+                    <i class="fa-brands fa-whatsapp text-emerald-400 text-lg group-hover:scale-110 transition-transform"></i>
+                    <span>Contato Direto</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- WELCOME CARD (APRESENTAÇÃO BRAYAN) -->
+        <section class="w-full glass-card rounded-2xl p-6 sm:p-8 mb-10 text-zinc-200">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 font-bold text-lg">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Bem-vindo(a) à Py ULTRA 4K</h3>
+                    <p class="text-xs text-zinc-400">Liderança & Desenvolvimento Tecnológico</p>
+                </div>
+            </div>
+
+            <p class="text-sm sm:text-base leading-relaxed text-zinc-300 mb-6">
+                Que bom ter você por aqui! Meu nome é <strong class="text-amber-400">Brayan</strong>, sou o administrador da rede online <strong>“Py ULTRA 4K”</strong>. Sou formado no curso <strong>Lean Six Sigma</strong> (da Introdução até a Yellow Belt) e especializado em <strong>Linguagens e Códigos Python na Santander | Open Academy</strong>.
+            </p>
+            <p class="text-sm sm:text-base leading-relaxed text-zinc-300 mb-6">
+                Através desses conhecimentos, aplico metodologias de melhoria contínua e engenharia de software para ajudar a sua empresa, comércio ou produto a serem <strong>totalmente alavancados</strong>. Desenvolvo sites, sistemas customizados, catálogos modificados e automações do jeito que você precisa!
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div class="bg-black/40 border border-zinc-800 rounded-xl p-3 flex items-center space-x-3">
+                    <i class="fa-solid fa-certificate text-amber-400 text-xl"></i>
+                    <div>
+                        <p class="text-xs font-bold text-white">Lean Six Sigma</p>
+                        <p class="text-[11px] text-zinc-400">Introdução ao Yellow Belt</p>
+                    </div>
+                </div>
+                <div class="bg-black/40 border border-zinc-800 rounded-xl p-3 flex items-center space-x-3">
+                    <i class="fa-brands fa-python text-amber-400 text-xl"></i>
+                    <div>
+                        <p class="text-xs font-bold text-white">Python Specialist</p>
+                        <p class="text-[11px] text-zinc-400">Santander | Open Academy</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CATALOG OF SERVICES SECTION -->
+        <section class="w-full mb-12">
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-black font-tech uppercase text-white gold-glow-text inline-flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-amber-400"></i> Catálogo de Serviços
+                </h3>
+                <p class="text-xs sm:text-sm text-zinc-400 mt-1">Selecione uma das soluções abaixo para agendar ou solicitar um orçamento instantâneo</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Service Card 1 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl">
+                                <i class="fa-solid fa-laptop-code"></i>
+                            </div>
+                            <span class="text-[10px] font-bold font-tech px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">HIGH-END</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Sites & Landing Pages</h4>
+                        <p class="text-xs text-zinc-400 leading-relaxed mb-4">
+                            Design ultra moderno, otimizado para alta conversão de clientes, com integração total a redes sociais e WhatsApp.
+                        </p>
+                    </div>
+                    <button onclick="openBookingModal('Sites & Landing Pages de Alta Conversão')" 
+                            class="w-full gold-gradient-btn py-3 rounded-xl flex items-center justify-center space-x-2 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Solicitar / Agendar</span>
+                    </button>
+                </div>
+
+                <!-- Service Card 2 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <span class="text-[10px] font-bold font-tech px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">CUSTOM</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Sistemas Web Sob Medida</h4>
+                        <p class="text-xs text-zinc-400 leading-relaxed mb-4">
+                            Desenvolvimento de painéis, gestores internos, automações com banco de dados e controle de estoque ou clientes.
+                        </p>
+                    </div>
+                    <button onclick="openBookingModal('Sistemas Web Sob Medida')" 
+                            class="w-full gold-gradient-btn py-3 rounded-xl flex items-center justify-center space-x-2 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Solicitar / Agendar</span>
+                    </button>
+                </div>
+
+                <!-- Service Card 3 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl">
+                                <i class="fa-solid fa-store"></i>
+                            </div>
+                            <span class="text-[10px] font-bold font-tech px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">INTERATIVO</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Catálogos Digitais Modificados</h4>
+                        <p class="text-xs text-zinc-400 leading-relaxed mb-4">
+                            Catálogos interativos estilo Link-na-Bio, totalmente personalizados com direct, pedidos online e design premium.
+                        </p>
+                    </div>
+                    <button onclick="openBookingModal('Catálogos Digitais Modificados')" 
+                            class="w-full gold-gradient-btn py-3 rounded-xl flex items-center justify-center space-x-2 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Solicitar / Agendar</span>
+                    </button>
+                </div>
+
+                <!-- Service Card 4 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-2xl">
+                                <i class="fa-brands fa-python"></i>
+                            </div>
+                            <span class="text-[10px] font-bold font-tech px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">AUTOMAÇÃO</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Projetos Especiais em Python</h4>
+                        <p class="text-xs text-zinc-400 leading-relaxed mb-4">
+                            Scripts de automação de tarefas, scraping de dados, integração de APIs e dashboards analíticos Lean Six Sigma.
+                        </p>
+                    </div>
+                    <button onclick="openBookingModal('Projetos Especiais & Automações Python')" 
+                            class="w-full gold-gradient-btn py-3 rounded-xl flex items-center justify-center space-x-2 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Solicitar / Agendar</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER WITH RESTRICTED FINANCIAL DASHBOARD LINK -->
+    <footer class="relative z-10 w-full border-t border-zinc-800 bg-black/80 backdrop-blur-md py-6 px-4">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-bolt text-amber-400"></i>
+                <span class="font-bold text-zinc-200">Py ULTRA 4K</span>
+                <span>&copy; Todos os direitos reservados.</span>
+            </div>
+
+            <!-- RESTRICTED DASHBOARD TRIGGER -->
+            <button onclick="openAuthModal()" class="flex items-center space-x-2 px-4 py-2 rounded-lg bg-zinc-900 border border-amber-500/30 text-amber-400 hover:bg-amber-400 hover:text-black font-semibold transition-all">
+                <i class="fa-solid fa-lock text-xs"></i>
+                <span>Painel Financeiro Restrito</span>
+            </button>
+        </div>
+    </footer>
+
+
+    <!-- MODAL 1: CLIENT BOOKING & ORÇAMENTO -->
+    <div id="bookingModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="glass-card w-full max-w-lg rounded-2xl p-6 sm:p-8 relative border-amber-500/40">
+            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Agendar Projeto</h3>
+                    <p class="text-xs text-zinc-400">Confirmação direta com o administrador Brayan</p>
+                </div>
+            </div>
+
+            <form id="bookingForm" onsubmit="handleBookingSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-300 mb-1">Serviço Selecionado</label>
+                    <input type="text" id="selectedService" readonly class="w-full bg-black/60 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-amber-400 font-bold focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1">Seu Nome / Responsável *</label>
+                        <input type="text" id="clientName" required placeholder="Ex: Carlos Silva" class="w-full bg-zinc-900/80 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1">Empresa / Negócio</label>
+                        <input type="text" id="clientCompany" placeholder="Ex: Barbearia VIP" class="w-full bg-zinc-900/80 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-300 mb-1">Valor Estimado / Proposta (R$)</label>
+                    <input type="number" id="estimatedBudget" step="0.01" placeholder="Ex: 850.00" class="w-full bg-zinc-900/80 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-300 mb-1">Detalhes do Projeto / Necessidade</label>
+                    <textarea id="projectNotes" rows="3" placeholder="Descreva brevemente como quer o seu site, catálogo ou sistema..." class="w-full bg-zinc-900/80 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full gold-gradient-btn py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 mt-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Confirmar & Redirecionar WhatsApp</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MODAL 2: AUTHENTICATION FOR RESTRICTED DASHBOARD -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+        <div class="glass-card w-full max-w-sm rounded-2xl p-6 sm:p-8 relative border-amber-500/40 text-center">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-14 h-14 rounded-full bg-amber-400/10 border border-amber-400/40 text-amber-400 flex items-center justify-center text-2xl mx-auto mb-4">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+
+            <h3 class="text-xl font-extrabold text-white font-tech uppercase mb-1">Acesso Restrito</h3>
+            <p class="text-xs text-zinc-400 mb-6">Administração Py ULTRA 4K</p>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-300 mb-1">Usuário</label>
+                    <input type="text" id="authUser" required placeholder="Digite seu usuário" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-300 mb-1">Senha</label>
+                    <input type="password" id="authPass" required placeholder="Digite sua senha" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                </div>
+
+                <div id="authError" class="hidden text-xs text-red-400 font-medium text-center">
+                    Credenciais inválidas. Tente novamente.
+                </div>
+
+                <button type="submit" class="w-full gold-gradient-btn py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Entrar no Painel</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MODAL 3: FULL FINANCIAL DASHBOARD PANEL -->
+    <div id="financeDashboardModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/95 backdrop-blur-xl p-4 sm:p-6 lg:p-8">
+        <div class="max-w-6xl mx-auto w-full">
+            
+            <!-- Dashboard Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-zinc-800">
+                <div>
+                    <div class="flex items-center space-x-3">
+                        <span class="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-tech font-bold uppercase">PAINEL DO ADMINISTRADOR</span>
+                        <span class="text-xs text-zinc-400 font-tech" id="adminClock">00:00:00</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white font-tech mt-2">
+                        Controle Financeiro & Registros <i class="fa-solid fa-bolt text-amber-400 ml-1"></i>
+                    </h2>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="exportFinancialSummary()" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-300 hover:text-white hover:border-amber-400 text-xs font-bold transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-download text-amber-400"></i>
+                        <span>Exportar Relatório</span>
+                    </button>
+                    <button onclick="closeFinanceDashboard()" class="px-4 py-2.5 rounded-xl bg-red-950/80 border border-red-800/50 text-red-300 hover:bg-red-900 text-xs font-bold transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Sair</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metrics Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- Entradas -->
+                <div class="glass-card rounded-2xl p-5 border-emerald-500/30">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-zinc-400">Total Receitas (Entradas)</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-black text-emerald-400 font-tech" id="displayReceitas">R$ 0,00</p>
+                </div>
+
+                <!-- Saídas -->
+                <div class="glass-card rounded-2xl p-5 border-rose-500/30">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-zinc-400">Total Despesas (Saídas)</span>
+                        <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-arrow-trend-down"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-black text-rose-400 font-tech" id="displayDespesas">R$ 0,00</p>
+                </div>
+
+                <!-- Saldo Real -->
+                <div class="glass-card rounded-2xl p-5 border-amber-500/40">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-zinc-400">Saldo Real Líquido</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-black text-amber-300 font-tech" id="displaySaldoReal">R$ 0,00</p>
+                </div>
+
+                <!-- Registros Totais -->
+                <div class="glass-card rounded-2xl p-5 border-zinc-700">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-zinc-400">Propostas / Lançamentos</span>
+                        <div class="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-black text-white font-tech" id="displayTotalCount">0</p>
+                </div>
+            </div>
+
+            <!-- Form & Ledger Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Form: Novo Lançamento -->
+                <div class="glass-card rounded-2xl p-6 border-zinc-800">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                        <i class="fa-solid fa-plus-circle text-amber-400"></i>
+                        <span>Novo Lançamento</span>
+                    </h3>
+
+                    <form onsubmit="handleAddTransaction(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1">Tipo de Operação</label>
+                            <select id="transType" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                                <option value="receita">Receita (+) Entrada</option>
+                                <option value="despesa">Despesa (-) Saída</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1">Descrição / Cliente</label>
+                            <input type="text" id="transDesc" required placeholder="Ex: Projeto Site Barbearia" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1">Valor Real (R$)</label>
+                            <input type="number" step="0.01" id="transValue" required placeholder="0.00" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1">Categoria</label>
+                            <input type="text" id="transCategory" placeholder="Ex: Web Design, Servidor, Python" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none">
+                        </div>
+
+                        <button type="submit" class="w-full gold-gradient-btn py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Registrar Lançamento</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Ledger Table -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 border-zinc-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-list-numeric text-amber-400"></i>
+                                <span>Histórico Financeiro de Registros</span>
+                            </h3>
+
+                            <button onclick="clearAllTransactions()" class="text-xs text-zinc-500 hover:text-red-400 transition-colors">
+                                Limpar Todos os Dados
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-zinc-800 text-zinc-400 uppercase font-tech">
+                                        <th class="py-3 px-2">Data</th>
+                                        <th class="py-3 px-2">Descrição</th>
+                                        <th class="py-3 px-2">Categoria</th>
+                                        <th class="py-3 px-2">Tipo</th>
+                                        <th class="py-3 px-2">Valor</th>
+                                        <th class="py-3 px-2 text-right">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody" class="divide-y divide-zinc-800/60 text-zinc-300">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="emptyState" class="hidden text-center py-8 text-zinc-500 text-xs">
+                        Nenhum registro financeiro armazenado até o momento.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // GLOBAL CONSTANTS
+        const WHATSAPP_NUMBER = "5522997302763";
+        const ADMIN_USER = "Brayan";
+        const ADMIN_PASS = "Bc2010.com";
+
+        // APP STATE (PERISTED IN LOCALSTORAGE)
+        let transactions = JSON.parse(localStorage.getItem('pyultra_transactions')) || [
+            {
+                id: 1,
+                date: new Date().toLocaleDateString('pt-BR'),
+                desc: 'Abertura de Sistema & Automação',
+                category: 'Py ULTRA 4K',
+                type: 'receita',
+                value: 1200.00
+            }
+        ];
+
+        // -------------------------------------------------------------
+        // 1. THREE.JS 3D INTERACTIVE BACKGROUND
+        // -------------------------------------------------------------
+        let scene, camera, renderer, particlesMesh, mouseX = 0, mouseY = 0;
+
+        function init3DBackground() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Particles Geometry
+            const particlesCount = 350;
+            const posArray = new Float32Array(particlesCount * 3);
+            const colorArray = new Float32Array(particlesCount * 3);
+
+            for(let i = 0; i < particlesCount * 3; i += 3) {
+                posArray[i] = (Math.random() - 0.5) * 80;
+                posArray[i+1] = (Math.random() - 0.5) * 80;
+                posArray[i+2] = (Math.random() - 0.5) * 80;
+
+                // Gold / Amber / Yellow color mix
+                colorArray[i] = 0.98; // R
+                colorArray[i+1] = Math.random() * 0.5 + 0.5; // G
+                colorArray[i+2] = 0.1; // B
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+            // Material
+            const material = new THREE.PointsMaterial({
+                size: 0.8,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            particlesMesh = new THREE.Points(geometry, material);
+            scene.add(particlesMesh);
+
+            // Additional 3D Energy Wireframe Mesh
+            const torusGeo = new THREE.TorusKnotGeometry(12, 3, 100, 16);
+            const torusMat = new THREE.MeshBasicMaterial({ 
+                color: 0xfabb05, 
+                wireframe: true, 
+                transparent: true, 
+                opacity: 0.08 
+            });
+            const torus = new THREE.Mesh(torusGeo, torusMat);
+            scene.add(torus);
+
+            // Animation Loop
+            function animate() {
+                requestAnimationFrame(animate);
+
+                particlesMesh.rotation.y += 0.001;
+                particlesMesh.rotation.x += 0.0005;
+
+                torus.rotation.x += 0.003;
+                torus.rotation.y += 0.005;
+
+                // Subtle Mouse Interaction Response
+                camera.position.x += (mouseX * 0.01 - camera.position.x) * 0.05;
+                camera.position.y += (-mouseY * 0.01 - camera.position.y) * 0.05;
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Event Listeners for Interaction & Resize
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX - window.innerWidth / 2;
+                mouseY = e.clientY - window.innerHeight / 2;
+            });
+
+            // Touch support for mobile interaction
+            document.addEventListener('touchmove', (e) => {
+                if(e.touches.length > 0) {
+                    mouseX = e.touches[0].clientX - window.innerWidth / 2;
+                    mouseY = e.touches[0].clientY - window.innerHeight / 2;
+                }
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+
+        // -------------------------------------------------------------
+        // 2. REAL-TIME CLOCK FUNCTIONALITY (24/7)
+        // -------------------------------------------------------------
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('pt-BR');
+            const dateStr = now.toLocaleDateString('pt-BR');
+            const fullStr = `${timeStr} - ${dateStr}`;
+
+            document.getElementById('liveClock').innerText = fullStr;
+            const adminClock = document.getElementById('adminClock');
+            if(adminClock) adminClock.innerText = fullStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+
+        // -------------------------------------------------------------
+        // 3. BOOKING & WHATSAPP REDIRECTION
+        // -------------------------------------------------------------
+        function openBookingModal(serviceName) {
+            document.getElementById('selectedService').value = serviceName;
+            document.getElementById('bookingModal').classList.remove('hidden');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
+        }
+
+        function handleBookingSubmit(event) {
+            event.preventDefault();
+
+            const service = document.getElementById('selectedService').value;
+            const name = document.getElementById('clientName').value;
+            const company = document.getElementById('clientCompany').value || "Não informada";
+            const budget = document.getElementById('estimatedBudget').value || "A definir";
+            const notes = document.getElementById('projectNotes').value || "Sem observações";
+
+            // Save automatically into internal financial ledger as a pending lead proposal
+            if(budget !== "A definir" && parseFloat(budget) > 0) {
+                transactions.push({
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    desc: `Orçamento: ${name} (${company})`,
+                    category: service,
+                    type: 'receita',
+                    value: parseFloat(budget)
+                });
+                saveAndRenderTransactions();
+            }
+
+            // Format message for WhatsApp
+            const message = `⚡ *NOVO PEDIDO DE PROJETO - Py ULTRA 4K* ⚡\n\n` +
+                            `*Serviço:* ${service}\n` +
+                            `*Cliente:* ${name}\n` +
+                            `*Empresa:* ${company}\n` +
+                            `*Orçamento Estimado:* R$ ${budget}\n` +
+                            `*Detalhes:* ${notes}\n\n` +
+                            `Olá Brayan, gostaria de confirmar este agendamento para alavancar meu negócio!`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+            closeBookingModal();
+            window.open(whatsappUrl, '_blank');
+        }
+
+
+        // -------------------------------------------------------------
+        // 4. AUTHENTICATION & RESTRICTED DASHBOARD
+        // -------------------------------------------------------------
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+            document.getElementById('authError').classList.add('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('authUser').value;
+            const pass = document.getElementById('authPass').value;
+
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                closeAuthModal();
+                openFinanceDashboard();
+            } else {
+                document.getElementById('authError').classList.remove('hidden');
+            }
+        }
+
+        function openFinanceDashboard() {
+            document.getElementById('financeDashboardModal').classList.remove('hidden');
+            renderTransactions();
+        }
+
+        function closeFinanceDashboard() {
+            document.getElementById('financeDashboardModal').classList.add('hidden');
+        }
+
+
+        // -------------------------------------------------------------
+        // 5. FINANCIAL MANAGEMENT & LEDGER LOGIC
+        // -------------------------------------------------------------
+        function handleAddTransaction(event) {
+            event.preventDefault();
+
+            const type = document.getElementById('transType').value;
+            const desc = document.getElementById('transDesc').value;
+            const val = parseFloat(document.getElementById('transValue').value);
+            const category = document.getElementById('transCategory').value || 'Geral';
+
+            if (!desc || isNaN(val) || val <= 0) return;
+
+            const newTrans = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('pt-BR'),
+                desc: desc,
+                category: category,
+                type: type,
+                value: val
+            };
+
+            transactions.push(newTrans);
+            saveAndRenderTransactions();
+
+            // Reset form
+            document.getElementById('transDesc').value = '';
+            document.getElementById('transValue').value = '';
+            document.getElementById('transCategory').value = '';
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveAndRenderTransactions();
+        }
+
+        function clearAllTransactions() {
+            if (confirm("Tem certeza de que deseja apagar todos os registros financeiros?")) {
+                transactions = [];
+                saveAndRenderTransactions();
+            }
+        }
+
+        function saveAndRenderTransactions() {
+            localStorage.setItem('pyultra_transactions', JSON.stringify(transactions));
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const tableBody = document.getElementById('transactionsTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tableBody.innerHTML = '';
+
+            let totalReceitas = 0;
+            let totalDespesas = 0;
+
+            if (transactions.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            transactions.forEach(t => {
+                if (t.type === 'receita') {
+                    totalReceitas += t.value;
+                } else {
+                    totalDespesas += t.value;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-zinc-900/50 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-3 px-2 text-zinc-400">${t.date}</td>
+                    <td class="py-3 px-2 font-semibold text-white">${t.desc}</td>
+                    <td class="py-3 px-2 text-zinc-400">${t.category}</td>
+                    <td class="py-3 px-2 font-bold uppercase ${t.type === 'receita' ? 'text-emerald-400' : 'text-rose-400'}">
+                        ${t.type}
+                    </td>
+                    <td class="py-3 px-2 font-bold ${t.type === 'receita' ? 'text-emerald-400' : 'text-rose-400'}">
+                        R$ ${t.value.toFixed(2).replace('.', ',')}
+                    </td>
+                    <td class="py-3 px-2 text-right">
+                        <button onclick="deleteTransaction(${t.id})" class="text-zinc-500 hover:text-rose-400 transition-colors">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            const saldoReal = totalReceitas - totalDespesas;
+
+            document.getElementById('displayReceitas').innerText = `R$ ${totalReceitas.toFixed(2).replace('.', ',')}`;
+            document.getElementById('displayDespesas').innerText = `R$ ${totalDespesas.toFixed(2).replace('.', ',')}`;
+            document.getElementById('displaySaldoReal').innerText = `R$ ${saldoReal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('displayTotalCount').innerText = transactions.length;
+        }
+
+        function exportFinancialSummary() {
+            let summaryText = "=== RELATÓRIO FINANCEIRO - Py ULTRA 4K ===\n\n";
+            transactions.forEach(t => {
+                summaryText += `[${t.date}] - ${t.desc} (${t.category}): ${t.type.toUpperCase()} R$ ${t.value.toFixed(2)}\n`;
+            });
+
+            const blob = new Blob([summaryText], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Relatorio_PyULTRA4K_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+        }
+
+        // Initialize 3D canvas when window loads
+        window.onload = function() {
+            init3DBackground();
+        };
+    </script>
+</body>
+</html>
